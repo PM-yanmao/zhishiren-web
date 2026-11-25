@@ -51,7 +51,10 @@
           <span class="dynasty"><span class="dynasty-seal" aria-hidden="true">唐</span>卷二 · 大唐</span>
           <span class="save-tag" id="save-xuanzang" hidden>有未竟记录</span>
         </div>
-        <img src="xuanzang/assets/title.jpg" alt="《玄奘西行》封面图" width="1280" height="800">
+        <picture>
+          <source srcset="xuanzang/assets/webp/title.webp" type="image/webp">
+          <img src="xuanzang/assets/title.jpg" alt="《玄奘西行》封面图" width="1280" height="800">
+        </picture>
       </div>
       <div class="volume-body">
         <p class="volume-era">贞观三年 · 长安至天竺</p>
@@ -103,9 +106,13 @@
   } catch (e) {}
 
   try {
-    if (localStorage.getItem('xz:save:v1')) {
-      var el2 = document.getElementById('save-xuanzang');
-      if (el2) el2.hidden = false;
+    var xzRaw = localStorage.getItem('xz:save:v1');
+    if (xzRaw) {
+      var xzSave = JSON.parse(xzRaw);
+      if (xzSave && xzSave.s && !xzSave.s.endingId && xzSave.s.node) {
+        var el2 = document.getElementById('save-xuanzang');
+        if (el2) el2.hidden = false;
+      }
     }
   } catch (e) {}
 })();

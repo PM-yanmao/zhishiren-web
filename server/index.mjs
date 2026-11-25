@@ -153,8 +153,9 @@ function rateLimited(ip) {
   return b.count > CFG.rateLimit;
 }
 
-/* ---------- 静态文件（黑名单 + 路径边界双重校验） ---------- */
+/* ---------- 静态文件（前端白名单 + 路径边界双重校验） ---------- */
 const REAL_ROOT = fs.realpathSync(ROOT);
+const ALLOWED_TOP = new Set(['index.html', 'portal.css', 'taishigong', 'xuanzang']);
 const WITHIN = (base, target) => {
   const rel = path.relative(base, target);
   return !!rel && !rel.startsWith('..') && !path.isAbsolute(rel);
@@ -163,12 +164,12 @@ function serveStatic(req, res, pathname) {
   let rel;
   try { rel = decodeURIComponent(pathname); } catch (e) { return badRequest(req, res); }
   if (rel === '' || rel.endsWith('/')) rel = rel + 'index.html';
-  /* 反斜杠与 NUL 一律拒绝：Windows 上 path.resolve 会把 \ 当分隔符，绕过下面的 / 分隔黑名单 */
+  /* 反斜杠与 NUL 一律拒绝：Windows 上 path.resolve 会把 \ 当分隔符，绕过下面的 / 分隔白名单 */
   if (rel.includes('\0') || rel.includes('\\')) return forbid(req, res);
   const segments = rel.split('/').filter(Boolean);
-  /* 服务端源码、日志、.env 与任何点开头的路径一律不对外 */
+  /* 服务端源码、日志、测试、工具、文档与任何点开头的路径一律不对外，只放行前端白名单 */
   if (segments.some((s) => s.startsWith('.'))) return forbid(req, res);
-  if (segments[0] === 'server' || segments[0] === 'logs') return forbid(req, res);
+  if (!segments.length || !ALLOWED_TOP.has(segments[0])) return forbid(req, res);
   const target = path.resolve(ROOT, '.' + (rel.startsWith('/') ? rel : '/' + rel));
   if (!WITHIN(ROOT, target)) return forbid(req, res);
   fs.stat(target, (err, st) => {
@@ -525,8 +526,9 @@ server.on('error', (e) => {
 
 server.listen(CFG.port, CFG.host, () => {
   console.log('');
-  console.log('  太史公 · 本地演示服务已启动');
-  console.log('  打开  http://localhost:' + CFG.port + '   监听 ' + CFG.host);
+  console.log('  史卷行迹 · 本地演示服务已启动');
+  console.log('  导航  http://localhost:' + CFG.port + '/   （《太史公》/taishigong/ · 《玄奘西行》/xuanzang/）');
+  console.log('  监听  ' + CFG.host + ':' + CFG.port);
   console.log('  接口  ' + (CFG.apiKey ? '已配置 Key（在线生成）' : '未配置 Key（自动走离线剧本包）'));
   console.log('  模型  ' + CFG.model + '   锚点库 v' + ANCHORS.version + '   服务 v' + CFG.version);
   console.log('  自书  ' + (FREEWRITE.openNodes || []).join('/') + '（每局 ' + (FREEWRITE.perRun || 5) + ' 笔，一行 ≤ ' + MAX_CHARS + ' 字）');

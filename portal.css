@@ -63,7 +63,12 @@ body::after {
 }
 
 body::before {
-  background: url("xuanzang/assets/ui/paper.jpg") repeat;
+  background-repeat: repeat;
+  background-image: url("xuanzang/assets/ui/paper.jpg");
+  background-image: image-set(
+    url("xuanzang/assets/webp/ui/paper.webp") type("image/webp"),
+    url("xuanzang/assets/ui/paper.jpg") type("image/jpeg")
+  );
   opacity: 0.045;
   z-index: 0;
 }

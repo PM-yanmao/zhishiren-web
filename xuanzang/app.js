@@ -484,10 +484,18 @@ var END_ART = {
 var MYTH_END_ART = { M1: 'M1_another', M2: 'M2_wuxing', M3: 'M3_pansi', M4: 'M4_leiyin', M5: 'M5_wake' };
 
 function asset(p) {
-  return (typeof window !== 'undefined' && window.TSX_INLINE && window.TSX_INLINE[p]) || p;
+  return p;
+}
+function webpOf(p) {
+  return /^assets\/.+\.jpe?g$/i.test(p) ? 'assets/webp/' + p.slice(7).replace(/\.jpe?g$/i, '.webp') : '';
+}
+function pictureHTML(p, imgAttrs) {
+  var wp = webpOf(p);
+  var img = '<img src="' + esc(asset(p)) + '" alt=""' + (imgAttrs ? ' ' + imgAttrs : '') + '>';
+  return wp ? '<picture><source srcset="' + esc(wp) + '" type="image/webp">' + img + '</picture>' : img;
 }
 function bgLayer(p) {
-  return '<div class="art"><img src="' + esc(asset(p)) + '" alt=""></div>';
+  return '<div class="art">' + pictureHTML(p, 'decoding="async"') + '</div>';
 }
 
 function pt(a, v, R, C) {
@@ -722,70 +730,17 @@ function aboutScreen() {
     '<div class="row"><button class="btn" data-act="back">返回</button></div></div></section>';
 }
 
-function charsScreen() {
-  var cards = DATA.CHARACTERS.map(function (c) {
-    return '<article class="char-card">' +
-      '<div class="char-pair">' +
-      '<figure><img src="' + esc(asset(c.statue)) + '" alt="" onerror="this.parentNode.classList.add(\'missing\')"><figcaption>真实造像</figcaption>' + (c.note ? '<span class="char-note">' + esc(c.note) + '</span>' : '') + '</figure>' +
-      '<figure><img src="' + esc(asset(c.restore)) + '" alt=""><figcaption>复原形象</figcaption></figure>' +
-      '</div>' +
-      '<h3>' + esc(c.name) + '</h3><p class="char-title">' + esc(c.title) + '</p>' +
-      '<p class="char-bio">' + esc(c.bio) + '</p>' +
-      '<p class="char-credit">造像来源：' + esc(c.credit || '待补') + '</p></article>';
-  }).join('');
-  return '<section class="screen chars"><div class="inner"><h2>人物档案</h2>' +
-    '<p class="tiny">左为真实造像（石像/壁画/文物），右为复原形象。空缺者待补。</p>' +
-    '<div class="char-grid">' + cards + '</div>' +
-    '<div class="row"><button class="btn" data-act="back">返回</button></div></div></section>';
-}
-
-function atlasHTML() {
-  var k = 'assets/map/atlas.html';
-  if (typeof window !== 'undefined' && window.TSX_INLINE_HTML && window.TSX_INLINE_HTML[k]) {
-    if (!window.__tsxAtlasHTML) {
-      var b64 = String(window.TSX_INLINE_HTML[k]).split(',')[1] || '';
-      var bin = atob(b64);
-      var arr = new Uint8Array(bin.length);
-      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      window.__tsxAtlasHTML = new TextDecoder('utf-8').decode(arr);
-    }
-    return window.__tsxAtlasHTML;
-  }
-  return null;
-}
-
 function escAttr(s) {
   return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function atlasFocus(html, q) {
-  var js = '';
-  if (q) {
-    js += '<script>window.addEventListener("load",function(){setTimeout(function(){try{' +
-      'var q=' + JSON.stringify(q) + ';var els=[].slice.call(document.querySelectorAll("button,a,li,[role=button],.event,.timeline-item"));' +
-      'var hit=els.filter(function(x){return x.textContent&&x.textContent.trim().indexOf(q)>=0;})[0];' +
-      'if(hit&&hit.click)hit.click();}catch(e){}},900);});<\/script>';
-  }
-  var lit = (typeof APP !== 'undefined' && APP.s && APP.s.stamps) ? APP.s.stamps : [];
-  var spots = [];
-  for (var i = 1; i <= 16; i++) {
-    var ll = STAMP_LONLAT[i]; if (!ll) continue;
-    spots.push([ll[0], ll[1], lit.indexOf(i) >= 0 ? 1 : 0, i]);
-  }
-  js += '<script>window.XZ_STAMPS=' + JSON.stringify(spots) + ';<\/script>';
-  var k = html.lastIndexOf('</body>');
-  return k >= 0 ? html.slice(0, k) + js + html.slice(k) : html + js;
-}
-
 function atlasScreen(q) {
-  var html = atlasHTML();
   var url = 'assets/map/atlas.html' + (q ? '?q=' + encodeURIComponent(q) : '');
-  var src = html ? 'srcdoc="' + escAttr(atlasFocus(html, q)) + '"' : 'src="' + escAttr(url) + '"';
   return '<section class="screen atlas">' +
     '<div class="atlas-bar"><button class="btn" data-act="back">返回</button>' +
     '<span>玄奘西行 · 史料地图</span>' + '<span class="atlas-stamp-info">已盖 ' + ((typeof APP !== 'undefined' && APP.s) ? APP.s.stamps.length : 0) + ' / 16</span></div>' +
     atlasStrip() +
-    '<iframe ' + src + ' title="史料地图"></iframe>' +
+    '<iframe src="' + escAttr(url) + '" title="史料地图"></iframe>' +
     '</section>';
 }
 
@@ -793,8 +748,8 @@ function charsScreen() {
   var cards = DATA.CHARACTERS.map(function (c) {
     return '<article class="char-card">' +
       '<div class="char-pair">' +
-      '<figure><img src="' + esc(asset(c.statue)) + '" alt="" onerror="this.parentNode.classList.add(\'missing\')"><figcaption>真实造像</figcaption>' + (c.note ? '<span class="char-note">' + esc(c.note) + '</span>' : '') + '</figure>' +
-      '<figure><img src="' + esc(asset(c.restore)) + '" alt=""><figcaption>复原形象</figcaption></figure>' +
+      '<figure>' + pictureHTML(c.statue, 'loading="lazy" decoding="async" onerror="this.closest(\'figure\').classList.add(\'missing\')"') + '<figcaption>真实造像</figcaption>' + (c.note ? '<span class="char-note">' + esc(c.note) + '</span>' : '') + '</figure>' +
+      '<figure>' + pictureHTML(c.restore, 'loading="lazy" decoding="async"') + '<figcaption>复原形象</figcaption></figure>' +
       '</div>' +
       '<h3>' + esc(c.name) + '</h3><p class="char-title">' + esc(c.title) + '</p>' +
       '<p class="char-bio">' + esc(c.bio) + '</p>' +
@@ -873,13 +828,13 @@ function boardScreen(db) {
   var rows = [];
   if (db && db.players) {
     Object.keys(db.players).forEach(function (id) {
-      (db.players[id].runs || []).forEach(function (r) { rows.push({ id: id, r: r }); });
+      (db.players[id].runs || []).forEach(function (r, idx) { rows.push({ id: id, idx: idx, r: r }); });
     });
   }
   rows.sort(function (a, b) { return b.r.sim - a.r.sim; });
   var html = rows.slice(0, 50).map(function (x, i) {
     var d = new Date(x.r.at);
-    return '<tr class="rowlink" data-act="replay" data-player="' + esc(x.id) + '" data-run="' + i + '">' +
+    return '<tr class="rowlink" data-act="replay" data-player="' + esc(x.id) + '" data-run="' + x.idx + '">' +
       '<td class="num">' + (i + 1) + '</td><td>' + esc(x.id) + '</td>' +
       '<td>' + esc(x.r.name || ('结局 ' + x.r.ending)) + '</td>' +
       '<td class="num">' + x.r.sim + '</td><td class="num">' + x.r.stamps + '/16</td>' +
@@ -914,6 +869,11 @@ function drawCard(endingId, s) {
   var pending = 2;
   function done() {
     if (--pending > 0) return;
+    if (art.naturalWidth && art.naturalHeight) {
+      var scale = Math.max(W / art.naturalWidth, H / art.naturalHeight);
+      var dw = art.naturalWidth * scale, dh = art.naturalHeight * scale;
+      ctx.drawImage(art, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    }
     var g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, 'rgba(18,17,15,.55)'); g.addColorStop(1, 'rgba(18,17,15,.96)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -944,7 +904,9 @@ function drawCard(endingId, s) {
     for (var m = 0; m < 6; m++) { var pl = pt2(m, 118); ctx.fillText(AX[m].name, pl[0], pl[1]); }
     // 路线
     var RX = 90, RY = 860, RW = 900, RH = 420;
-    ctx.globalAlpha = .5; ctx.drawImage(map, RX, RY, RW, RH); ctx.globalAlpha = 1;
+    if (map.naturalWidth && map.naturalHeight) {
+      ctx.globalAlpha = .5; ctx.drawImage(map, RX, RY, RW, RH); ctx.globalAlpha = 1;
+    }
     var seq = [];
     (s.steps || []).forEach(function (st) { var sc = DATA.SCENES[st.node]; if (sc && sc.stamp && seq.indexOf(sc.stamp) < 0) seq.push(sc.stamp); });
     ctx.strokeStyle = '#e0b75a'; ctx.beginPath();
@@ -1037,7 +999,24 @@ function prototypesScreen() {
 
 
 /* 路由与状态 */
-var APP = { screen: 'start', s: null, endingId: 0, mythId: null, mythEnding: null, prev: 'start', stampSel: 0, player: '', db: null };
+var APP = { screen: 'start', s: null, endingId: 0, mythId: null, mythEnding: null, prev: 'start', history: [], stampSel: 0, player: '', db: null };
+
+function appNav(next) {
+  if (APP.screen !== next) {
+    APP.prev = APP.screen;
+    APP.history.push(APP.screen);
+    if (APP.history.length > 20) APP.history.shift();
+  }
+  APP.screen = next;
+  return appRender();
+}
+
+function appBack() {
+  var target = APP.history.length ? APP.history.pop() : (APP.prev || 'start');
+  APP.screen = target || 'start';
+  APP.prev = APP.history.length ? APP.history[APP.history.length - 1] : 'start';
+  return appRender();
+}
 
 function appRender() {
   var host = document.getElementById('app');
@@ -1064,8 +1043,8 @@ function appRender() {
     html = '<section class="screen"><div class="inner"><h2>出了点问题</h2><p class="tiny">' + esc(e.message) + '</p>' +
       '<div class="row"><button class="btn" data-act="home">回到开始</button></div></div></section>';
   }
-  host.innerHTML = html;
-  window.scrollTo(0, 0);
+  if (host) host.innerHTML = html;
+  if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
 }
 
 function appChoose(optId) {
@@ -1074,9 +1053,17 @@ function appChoose(optId) {
   node.options.forEach(function (o) { if (o.id === optId) opt = o; });
   if (!opt) return;
   APP.s = ENGINE.applyOption(APP.s, opt);
-  appSave();
-  if (APP.s.endingId) { APP.endingId = APP.s.endingId; APP.screen = 'ending'; appRecord(APP.s.endingId); }
-  else APP.screen = 'scene';
+  if (APP.s.endingId) {
+    appClearSave();
+    APP.history = ['start'];
+    APP.prev = 'start';
+    APP.endingId = APP.s.endingId;
+    APP.screen = 'ending';
+    appRecord(APP.s.endingId);
+  } else {
+    appSave();
+    APP.screen = 'scene';
+  }
   appRender();
 }
 
@@ -1092,7 +1079,9 @@ function appMythChoose(kind) {
   APP.s.M += 10;
   APP.mythEnding = ENGINE.mythJudge(kind, APP.s);
   unlock(APP.mythEnding);
-  appSave();
+  appClearSave();
+  APP.history = ['start'];
+  APP.prev = 'start';
   APP.screen = 'mythEnding';
   appRender();
 }
@@ -1100,6 +1089,8 @@ function appMythChoose(kind) {
 function appBegin() {
   if (!APP.player) APP.player = appDb().active || '访客';
   APP.s = ENGINE.startState();
+  APP.history = ['start'];
+  APP.prev = 'start';
   APP.screen = 'scene';
   appRender();
 }
@@ -1112,40 +1103,40 @@ function appClick(e) {
   if (act === 'choose') return appChoose(el.getAttribute('data-opt'));
   if (act === 'myth') return appMyth(el.getAttribute('data-myth'));
   if (act === 'myth-choose') return appMythChoose(el.getAttribute('data-kind'));
-  if (act === 'stamps') { APP.prev = APP.screen; APP.screen = 'stamps'; return appRender(); }
-  if (act === 'about') { APP.prev = APP.screen; APP.screen = 'about'; return appRender(); }
-  if (act === 'chars') { APP.prev = APP.screen; APP.screen = 'chars'; return appRender(); }
+  if (act === 'stamps') return appNav('stamps');
+  if (act === 'about') return appNav('about');
+  if (act === 'chars') return appNav('chars');
   if (act === 'stamp') { APP.stampSel = Number(el.getAttribute('data-id')); return appRender(); }
-  if (act === 'atlas') { APP.atlasQuery = ''; APP.prev = APP.screen; APP.screen = 'atlas'; return appRender(); }
-  if (act === 'atlas-focus') { APP.atlasQuery = el.getAttribute('data-q') || ''; if (APP.screen !== 'atlas') APP.prev = APP.screen; APP.screen = 'atlas'; return appRender(); }
-  if (act === 'museum') { APP.prev = APP.screen; APP.screen = 'museum'; return appRender(); }
-  if (act === 'prototypes') { APP.prev = APP.screen; APP.screen = 'prototypes'; return appRender(); }
-  if (act === 'board') { APP.prev = APP.screen; APP.screen = 'board'; return appRender(); }
-  if (act === 'endings') { APP.prev = APP.screen; APP.screen = 'endings'; return appRender(); }
+  if (act === 'atlas') { APP.atlasQuery = ''; return appNav('atlas'); }
+  if (act === 'atlas-focus') { APP.atlasQuery = el.getAttribute('data-q') || ''; return appNav('atlas'); }
+  if (act === 'museum') return appNav('museum');
+  if (act === 'prototypes') return appNav('prototypes');
+  if (act === 'board') return appNav('board');
+  if (act === 'endings') return appNav('endings');
   if (act === 'replay') {
     var pid = el.getAttribute('data-player');
     var rid = Number(el.getAttribute('data-run') || 0);
     var db2 = appDb();
     APP.replayRun = (db2.players[pid] && db2.players[pid].runs[rid]) || null;
-    APP.prev = APP.screen; APP.screen = 'replay'; return appRender();
+    return appNav('replay');
   }
-  if (act === 'player') { APP.prev = APP.screen; APP.screen = 'player'; return appRender(); }
+  if (act === 'player') return appNav('player');
   if (act === 'set-player') {
     var el2 = document.getElementById('player-input');
     var nm = el2 ? String(el2.value || '').trim().slice(0, 12) : '';
     if (!nm) return;
-    APP.player = nm; appDb().active = nm; appSaveDb(); APP.screen = 'start'; return appRender();
+    APP.player = nm; appDb().active = nm; appSaveDb(); APP.history = []; APP.prev = 'start'; APP.screen = 'start'; return appRender();
   }
   if (act === 'switch-player') { APP.player = el.getAttribute('data-id') || '访客'; appDb().active = APP.player; appSaveDb(); return appRender(); }
-  if (act === 'card') { APP.prev = APP.screen; APP.screen = 'card'; return appRender(); }
+  if (act === 'card') return appNav('card');
   if (act === 'download-card') {
     var cv = document.getElementById('share');
     if (cv) { var a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = '玄奘西行-本局.png'; a.click(); }
     return;
   }
   if (act === 'continue') return appContinue();
-  if (act === 'back') { APP.screen = APP.prev === 'stamps' || APP.prev === 'about' ? 'start' : APP.prev; return appRender(); }
-  if (act === 'home') { APP.screen = 'start'; return appRender(); }
+  if (act === 'back') return appBack();
+  if (act === 'home') { APP.history = []; APP.prev = 'start'; APP.screen = 'start'; return appRender(); }
 }
 
 function appKey(e) {
@@ -1168,14 +1159,20 @@ function appBoot() {
 function appSave() {
   try { localStorage.setItem('xz:save:v1', JSON.stringify({ s: APP.s, at: Date.now() })); } catch (e) {}
 }
+function appClearSave() {
+  try { localStorage.removeItem('xz:save:v1'); } catch (e) {}
+}
 function appContinue() {
   try {
     var raw = localStorage.getItem('xz:save:v1');
     if (!raw) return appBegin();
     var o = JSON.parse(raw);
-    if (!o || !o.s) return appBegin();
-    APP.s = o.s; APP.screen = 'scene'; appRender();
-  } catch (e) { appBegin(); }
+    if (!o || !o.s || o.s.endingId || !DATA.SCENES[o.s.node]) {
+      appClearSave();
+      return appBegin();
+    }
+    APP.s = o.s; APP.history = ['start']; APP.prev = 'start'; APP.screen = 'scene'; appRender();
+  } catch (e) { appClearSave(); appBegin(); }
 }
 function unlock(k) {
   try {
@@ -1215,5 +1212,10 @@ function appSaveDb() {
   try { localStorage.setItem('xz:db:v1', JSON.stringify(APP.db)); } catch (e) {}
 }
 function appHasSave() {
-  try { return !!localStorage.getItem('xz:save:v1'); } catch (e) { return false; }
+  try {
+    var raw = localStorage.getItem('xz:save:v1');
+    if (!raw) return false;
+    var o = JSON.parse(raw);
+    return !!(o && o.s && !o.s.endingId && DATA.SCENES[o.s.node]);
+  } catch (e) { return false; }
 }
