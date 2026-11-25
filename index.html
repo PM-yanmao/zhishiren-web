@@ -3,55 +3,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="《太史公》互动叙事游戏 · 自定义文本选项">
-<title>太史公</title>
+<meta name="description" content="史卷行迹：历史互动叙事合集，收录《太史公》与《玄奘西行》两卷独立作品。">
+<title>史卷行迹 · 历史互动叙事</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="portal.css">
 </head>
 <body>
-<div id="app"></div>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">历史互动叙事 · 卷目</p>
+    <h1>史卷行迹</h1>
+    <p class="subtitle">两段大汉与大唐之间的孤身行止。择一卷展读，落子入史。</p>
+  </header>
 
-<script src="js/data/freewrite.js"></script>
-<script src="config.js"></script>
-<script src="js/data/anchors.js"></script>
-<script src="js/data/overreach.js"></script>
+  <main class="volumes" aria-label="互动叙事作品目录">
+    <a class="volume" id="card-taishigong" href="taishigong/">
+      <div class="volume-media">
+        <div class="volume-head">
+          <span class="dynasty"><span class="dynasty-seal" aria-hidden="true">汉</span>卷一 · 西汉</span>
+          <span class="save-tag" id="save-taishigong" hidden>有未竟记录</span>
+        </div>
+        <picture>
+          <source srcset="taishigong/assets/webp/title.webp" type="image/webp">
+          <img src="taishigong/assets/title.jpg" alt="《太史公》封面图" width="1280" height="800">
+        </picture>
+      </div>
+      <div class="volume-body">
+        <p class="volume-era">太初至征和 · 长安</p>
+        <h2 class="volume-title">太史公</h2>
+        <p class="volume-quote">一个人的史记，和一整个时代的选择。</p>
+        <ul class="volume-meta">
+          <li>四维抉择</li>
+          <li>十二结局图鉴</li>
+          <li>人物档案</li>
+          <li>开放节点自书</li>
+        </ul>
+        <div class="volume-foot">
+          <span class="volume-path">./taishigong/</span>
+          <span class="volume-cta">展卷入史 <span class="arrow" aria-hidden="true">→</span></span>
+        </div>
+      </div>
+    </a>
 
-<script src="js/engine.js"></script>
-<script src="js/data/scenes.p1.js"></script>
-<script src="js/data/scenes.p2.js"></script>
-<script src="js/data/scenes.js"></script>
-<script src="js/data/endings.js"></script>
-<script src="js/data/characters.js"></script>
-<script src="js/data/scene-art.js"></script>
-<script src="js/ui/radar.js"></script>
-<script src="js/store.js"></script>
+    <a class="volume" id="card-xuanzang" href="xuanzang/">
+      <div class="volume-media">
+        <div class="volume-head">
+          <span class="dynasty"><span class="dynasty-seal" aria-hidden="true">唐</span>卷二 · 大唐</span>
+          <span class="save-tag" id="save-xuanzang" hidden>有未竟记录</span>
+        </div>
+        <img src="xuanzang/assets/title.jpg" alt="《玄奘西行》封面图" width="1280" height="800">
+      </div>
+      <div class="volume-body">
+        <p class="volume-era">贞观三年 · 长安至天竺</p>
+        <h2 class="volume-title">玄奘西行</h2>
+        <p class="volume-quote">你是一个僧人。你要去天竺问一件事。路上没有孙悟空。</p>
+        <ul class="volume-meta">
+          <li>六轴人格对照</li>
+          <li>十六站路线印章</li>
+          <li>史料交互地图</li>
+          <li>西游原型考</li>
+        </ul>
+        <div class="volume-foot">
+          <span class="volume-path">./xuanzang/</span>
+          <span class="volume-cta">展卷西行 <span class="arrow" aria-hidden="true">→</span></span>
+        </div>
+      </div>
+    </a>
+  </main>
 
-<script src="js/intent.js"></script>
-<script src="js/guard.js"></script>
-<script src="js/data/genpack.js"></script>
-<script src="js/compose.js"></script>
-<script src="js/client.js"></script>
+  <footer class="colophon">
+    <p>两卷彼此独立，进度与存档分别保存在当前浏览器本地。</p>
+    <p>支持直接分享子目录链接独立访问</p>
+  </footer>
+</div>
 
-<script src="js/ui/screens.js"></script>
-<script src="js/app.js"></script>
 <script>
-/* 加载期自检：脚本顺序/文件名改错时，直接在控制台点名缺了谁，
- * 而不是等到某个页面白屏再看「出了点问题」。 */
 (function () {
-  var miss = [];
-  if (typeof SCENES !== 'object' || !SCENES) miss.push('SCENES');
-  if (typeof START_NODE !== 'string') miss.push('START_NODE');
-  if (typeof ENDINGS !== 'object') miss.push('ENDINGS');
-  if (typeof PIECES !== 'object') miss.push('PIECES');
-  if (typeof CHARACTERS !== 'object') miss.push('CHARACTERS');
-  if (typeof TSG_SCENE_ART !== 'object' || !TSG_SCENE_ART) miss.push('TSG_SCENE_ART');
-  if (typeof TSG_Guard !== 'object') miss.push('TSG_Guard');
-  if (typeof TSG_Intent !== 'object') miss.push('TSG_Intent');
-  if (typeof TSG_Compose !== 'object') miss.push('TSG_Compose');
-  if (typeof TSG_Client !== 'object') miss.push('TSG_Client');
-  if (typeof TSG_Radar !== 'object') miss.push('TSG_Radar');
-  if (typeof APP !== 'object') miss.push('APP');
-  if (miss.length) console.error('[太史公] 脚本加载缺失：' + miss.join('、') + '（检查 index.html 的 script 顺序）');
+  /* 若通过根地址携带课堂口令（?token=...），自动透传至《太史公》入口 */
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    var token = params.get('token');
+    if (token) {
+      var tsgLink = document.getElementById('card-taishigong');
+      if (tsgLink) tsgLink.setAttribute('href', 'taishigong/?token=' + encodeURIComponent(token));
+    }
+  } catch (e) {}
+
+  /* 只读探测两卷本地未完成进度，展示轻提示 */
+  try {
+    var tsgRaw = localStorage.getItem('tsg:records:v1');
+    if (tsgRaw) {
+      var db = JSON.parse(tsgRaw);
+      var active = db && db.activeId && db.players && db.players[db.activeId];
+      if (active && active.current) {
+        var el1 = document.getElementById('save-taishigong');
+        if (el1) el1.hidden = false;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    if (localStorage.getItem('xz:save:v1')) {
+      var el2 = document.getElementById('save-xuanzang');
+      if (el2) el2.hidden = false;
+    }
+  } catch (e) {}
 })();
 </script>
 </body>

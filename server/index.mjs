@@ -162,22 +162,29 @@ const WITHIN = (base, target) => {
 function serveStatic(req, res, pathname) {
   let rel;
   try { rel = decodeURIComponent(pathname); } catch (e) { return badRequest(req, res); }
-  if (rel === '/' || rel === '') rel = '/index.html';
+  if (rel === '' || rel.endsWith('/')) rel = rel + 'index.html';
   /* 反斜杠与 NUL 一律拒绝：Windows 上 path.resolve 会把 \ 当分隔符，绕过下面的 / 分隔黑名单 */
   if (rel.includes('\0') || rel.includes('\\')) return forbid(req, res);
   const segments = rel.split('/').filter(Boolean);
   /* 服务端源码、日志、.env 与任何点开头的路径一律不对外 */
   if (segments.some((s) => s.startsWith('.'))) return forbid(req, res);
   if (segments[0] === 'server' || segments[0] === 'logs') return forbid(req, res);
-  const target = path.resolve(ROOT, '.' + rel);
+  const target = path.resolve(ROOT, '.' + (rel.startsWith('/') ? rel : '/' + rel));
   if (!WITHIN(ROOT, target)) return forbid(req, res);
   fs.stat(target, (err, st) => {
-    if (err || !st.isFile()) return notFound(req, res);
+    if (err) return notFound(req, res);
+    if (st.isDirectory()) {
+      securityHeaders(res);
+      res.writeHead(301, { Location: pathname + '/' });
+      res.end();
+      return;
+    }
+    if (!st.isFile()) return notFound(req, res);
     /* 再验一次真实路径，防止软链接把仓库外的文件带进来 */
     fs.realpath(target, (e2, real) => {
       if (e2 || !WITHIN(REAL_ROOT, real)) return forbid(req, res);
       const ext = path.extname(real).toLowerCase();
-      const isAsset = segments[0] === 'assets';
+      const isAsset = segments.includes('assets');
       securityHeaders(res);
       res.writeHead(200, {
         'Content-Type': MIME[ext] || 'application/octet-stream',

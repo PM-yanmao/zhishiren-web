@@ -14,8 +14,9 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
-/** taishigong-web/ 根目录（本文件位于 tests/helpers/） */
-export const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+/** 仓库根目录与《太史公》前端目录（本文件位于 tests/helpers/） */
+export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+export const PROJECT_ROOT = path.join(REPO_ROOT, 'taishigong');
 
 /** 与 index.html 一致的脚本顺序；跳过依赖真实 DOM 的 radar/screens/app。 */
 export const CLASSIC_SCRIPT_ORDER = Object.freeze([

@@ -38,7 +38,7 @@ from PIL import Image, ImageCms, ImageDraw, ImageFilter, ImageFont
 # 路径与常量
 # ----------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent / "taishigong"
 
 ASSETS = ROOT / "assets"
 SCENE_DIR = ASSETS / "scene"

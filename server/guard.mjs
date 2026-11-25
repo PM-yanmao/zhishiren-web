@@ -2,17 +2,17 @@
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
-const A = require('../js/data/anchors.js');
+const A = require('../taishigong/js/data/anchors.js');
 globalThis.TSG_ANCHORS = A;
-const OVERREACH = require('../js/data/overreach.js');
+const OVERREACH = require('../taishigong/js/data/overreach.js');
 globalThis.TSG_OVERREACH = OVERREACH;
-/* 自书字数上限与前端同源（js/data/freewrite.js） */
-const FREEWRITE = require('../js/data/freewrite.js');
+/* 自书字数上限与前端同源（taishigong/js/data/freewrite.js） */
+const FREEWRITE = require('../taishigong/js/data/freewrite.js');
 globalThis.TSG_CONFIG = globalThis.TSG_CONFIG || {
   minChars: FREEWRITE.minChars || 4,
   maxChars: FREEWRITE.maxChars || 40,
 };
-require('../js/guard.js');
+require('../taishigong/js/guard.js');
 const G = globalThis.TSG_Guard;
 
 export const ANCHORS = A;

@@ -13,7 +13,7 @@ const ST2 = 'urn:schemas-upnp-org:service:WANPPPConnection:1';
 const EXT_PORT = Number(process.env.EXT_PORT || 8787);
 const INT_PORT = Number(process.env.INT_PORT || 8787);
 const LEASE = Number(process.env.LEASE || 0); // 0 = 永久（路由器支持时）
-const DESC = process.env.DESC || 'taishigong-web';
+const DESC = process.env.DESC || 'zhishiren-web';
 
 function primaryIP() {
   return new Promise((res) => {

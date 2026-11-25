@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PAGES = 'https://pm-yanmao.github.io/taishigong-web/'; // 仓库改名时改这一行
+const PAGES = 'https://pm-yanmao.github.io/zhishiren-web/'; // 仓库改名时改这一行
 const ST = 'urn:schemas-upnp-org:service:WANIPConnection:1';
 
 /* 项目要求 Node 18+（内置 fetch / AbortSignal.timeout）。低版本要提前说清楚，
@@ -146,14 +146,14 @@ async function main() {
   console.log('  接口模式    ' + (HAS_KEY ? '在线生成（已配置 Key）' : '离线剧本包（未配置 Key）'));
   console.log('  监听        ' + HOST + ':' + PORT);
   console.log('');
-  console.log('  教师机      http://localhost:' + PORT);
+  console.log('  教师机      http://localhost:' + PORT + '/taishigong/  （导航页 http://localhost:' + PORT + '/）');
   if (loopback) {
     /* 只监听回环地址时，局域网地址一定连不上——不要打印误导学生 */
     console.log('  局域网      仅本机可访问（多设备演示请先在 server/.env 里设 TSG_HOST=0.0.0.0）');
   } else {
     const ips = lanIPs(ip);
     if (ips.length) {
-      for (const a of ips) console.log('  局域网      http://' + a + ':' + PORT + (a === ip ? '   <- 主用' : ''));
+      for (const a of ips) console.log('  局域网      http://' + a + ':' + PORT + '/taishigong/' + (a === ip ? '   <- 主用' : ''));
     } else {
       console.log('  局域网      未发现物理网卡地址（可能处于虚拟/VPN 网络）');
     }

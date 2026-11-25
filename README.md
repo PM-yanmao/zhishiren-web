@@ -3,8 +3,8 @@
 > 一部关于司马迁的互动叙事：你替他做选择，也替他写下一行史书之外的话。
 > 纯静态网页 + 可选的零依赖本地服务，为课堂演示而做。
 
-- 线上只读版（GitHub Pages，自动离线模式）：https://pm-yanmao.github.io/taishigong-web/
-- 本机完整版（可接大模型、有考据日志）：`npm start` → http://localhost:8787
+- 线上只读版（GitHub Pages，导航页含《太史公》与《玄奘西行》）：https://pm-yanmao.github.io/zhishiren-web/ （《太史公》直链：https://pm-yanmao.github.io/zhishiren-web/taishigong/ ）
+- 本机完整版（可接大模型、有考据日志）：`npm start` → http://localhost:8787/taishigong/ （导航页 http://localhost:8787/ ）
 
 ---
 

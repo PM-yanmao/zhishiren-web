@@ -34,9 +34,10 @@ import sys
 import numpy as np
 from PIL import Image, ImageOps
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_MAP = os.path.join(ROOT, 'tools', 'art-batch-map.json')
-DEFAULT_OUT = os.path.join(ROOT, 'analysis', 'graded')
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(REPO_ROOT, 'taishigong')
+DEFAULT_MAP = os.path.join(REPO_ROOT, 'tools', 'art-batch-map.json')
+DEFAULT_OUT = os.path.join(REPO_ROOT, 'analysis', 'graded')
 
 
 def luma(rgb):

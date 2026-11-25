@@ -8,7 +8,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'taishigong');
 const FILES = ['js/data/scenes.p1.js', 'js/data/scenes.p2.js', 'js/data/scenes.js'];
 
 const code = FILES
